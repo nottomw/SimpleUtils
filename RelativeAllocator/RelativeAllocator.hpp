@@ -1,6 +1,8 @@
 #ifndef RELATIVEALLOCATOR_HPP
 #define RELATIVEALLOCATOR_HPP
 
+#include "RawArrayWrapper.hpp"
+
 #include <cstdint>
 #include <set>
 
@@ -41,29 +43,35 @@ class RelativeAllocator
         {
         }
 
+        MemoryRegion &operator=(MemoryRegion &&oth)
+        {
+            ptr = oth.ptr;
+            size = oth.size;
+
+            return *this;
+        }
+
+        bool operator==(const MemoryRegion &oth)
+        {
+            return ((ptr == oth.ptr) && (size == oth.size));
+        }
+
         RelativePtr ptr;
         uint32_t size;
     };
 
     void tryToCoalesce(const MemoryRegion &freedMemRegion);
 
-    MemoryRegion &arrEmplace(MemoryRegion *const arr,                  //
-                             uint32_t *arrTail,                        //
-                             const RelativeAllocator::RelativePtr ptr, //
-                             const uint32_t size);
-
-    void arrErase(MemoryRegion *const arr, //
-                  uint32_t &arrTail,       //
-                  const MemoryRegion &region);
-
     MemoryRegion *arrFindPtr(MemoryRegion *const arr, //
                              uint32_t &arrTail,       //
                              const RelativePtr &ptr);
 
-    MemoryRegion *mRegionsFree; // raw array
+    RawArrayWrapper<MemoryRegion> mRegionsFree;
+    MemoryRegion *mRegionsFreeArr;
     uint32_t *mRegionsFreeTail;
 
-    MemoryRegion *mRegionsUsed; // raw array
+    RawArrayWrapper<MemoryRegion> mRegionsUsed;
+    MemoryRegion *mRegionsUsedArr;
     uint32_t *mRegionsUsedTail;
 
     uint8_t *const mSharedMem;
