@@ -101,9 +101,9 @@ void RelativeAllocator::dealloc(const RelativeAllocator::RelativePtr ptr)
         {
             found = true;
 
+            auto &newMemRegion = mRegionsFree.emplace(it.ptr, it.size);
             mRegionsUsed.erase(it);
 
-            auto &newMemRegion = mRegionsFree.emplace(it.ptr, it.size);
             tryToCoalesce(newMemRegion);
         }
     }
